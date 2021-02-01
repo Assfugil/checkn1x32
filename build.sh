@@ -5,11 +5,11 @@
 #
 
 SCRIPT_IS_CALLED_WITH_ARCH_ENV=$CHECKN1X_ARCH
-VERSION="1.1.5"
+VERSION="1.1.6"
 # Download links
-x86_64_ROOTFS="http://dl-cdn.alpinelinux.org/alpine/v3.12/releases/x86_64/alpine-minirootfs-3.12.1-x86_64.tar.gz"
+x86_64_ROOTFS="http://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-minirootfs-3.13.1-x86_64.tar.gz"
 x86_64_CRBINARY="https://assets.checkra.in/downloads/linux/cli/x86_64/4bf2f7e1dd201eda7d6220350db666f507d6f70e07845b772926083a8a96cd2b/checkra1n"
-i486_ROOTFS="http://dl-cdn.alpinelinux.org/alpine/v3.12/releases/x86/alpine-minirootfs-3.12.1-x86.tar.gz"
+i486_ROOTFS="http://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86/alpine-minirootfs-3.13.1-x86.tar.gz"
 i486_CRBINARY="https://assets.checkra.in/downloads/linux/cli/i486/7926a90f4d0b73bdc514bd813e1443e4fc579e1674e34622b4bd1002a3322e0f/checkra1n"
 # Set variables accroding to target arch
 if [ "$CHECKN1X_ARCH" == '' ]
@@ -43,20 +43,21 @@ mount -vo bind /dev rootfs/dev
 mount -vt sysfs sysfs rootfs/sys
 mount -vt proc proc rootfs/proc
 cp /etc/resolv.conf rootfs/etc
-cat <<! >rootfs/etc/apk/repositories
-http://dl-cdn.alpinelinux.org/alpine/edge/main
-http://dl-cdn.alpinelinux.org/alpine/edge/community
+
+cat << ! > rootfs/etc/apk/repositories
+http://dl-cdn.alpinelinux.org/alpine/v3.13/main
+http://dl-cdn.alpinelinux.org/alpine/v3.13/community
 http://dl-cdn.alpinelinux.org/alpine/edge/testing
+
 !
 
 # rootfs packages & services
 cat <<! | chroot rootfs /usr/bin/env PATH=/usr/bin:/bin:/usr/sbin:/sbin /bin/sh
 apk upgrade
-apk add xz alpine-base ncurses-terminfo-base udev usbmuxd openssh-client sshpass usbutils
+apk add xz alpine-base ncurses-terminfo-base udev usbmuxd libusbmuxd-progs openssh-client sshpass usbutils
 apk add --no-scripts linux-lts linux-firmware-none
 rc-update add bootmisc
 rc-update add hwdrivers
-rc-update add networking
 rc-update add udev
 rc-update add udev-trigger
 rc-update add udev-settle
@@ -69,6 +70,7 @@ kernel/drivers/hid/usbhid
 kernel/drivers/hid/hid-generic.ko
 kernel/drivers/hid/hid-cherry.ko
 kernel/drivers/hid/hid-apple.ko
+kernel/net/ipv4
 !
 chroot rootfs /usr/bin/env PATH=/usr/bin:/bin:/usr/sbin:/sbin \
 	/sbin/mkinitfs -F "checkn1x" -k -t /tmp -q $(ls rootfs/lib/modules)
@@ -102,7 +104,7 @@ cp -av ../scripts/* rootfs/usr/local/bin
 chmod -v 755 rootfs/usr/local/bin/*
 ln -sv sbin/init rootfs/init
 ln -sv ../../etc/terminfo rootfs/usr/share/terminfo # fix ncurses
-echo 'auto lo' >rootfs/etc/network/interfaces       # fix 127.0.0.1
+
 
 # boot config
 cp -av rootfs/boot/vmlinuz-lts iso/boot/vmlinuz
