@@ -3,7 +3,7 @@
 # checkn1x build script
 # https://asineth.gq/checkn1x
 #
-VERSION="1.1.6"
+VERSION="1.1.6-14.5-pongoOS"
 ROOTFS="https://dl-cdn.alpinelinux.org/alpine/v3.12/releases/x86_64/alpine-minirootfs-3.12.3-x86_64.tar.gz"
 CRBINARY="https://assets.checkra.in/downloads/linux/cli/x86_64/4bf2f7e1dd201eda7d6220350db666f507d6f70e07845b772926083a8a96cd2b/checkra1n"
 
@@ -75,6 +75,7 @@ popd
 # copy files
 cp -av ../inittab rootfs/etc
 cp -av ../scripts/* rootfs/usr/local/bin
+cp -av ../PongoConsolidated.bin rootfs/opt
 chmod -v 755 rootfs/usr/local/bin/*
 ln -sv sbin/init rootfs/init
 ln -sv ../../etc/terminfo rootfs/usr/share/terminfo # fix ncurses
